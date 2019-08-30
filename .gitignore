@@ -21,3 +21,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Cruft
+npm-debug.log
+.idea
+.env
+.vscode/launch.json
