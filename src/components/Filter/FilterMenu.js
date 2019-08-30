@@ -36,7 +36,14 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const FilterMenu = ({ items, name, isMultiple, returnType }) => {
+const FilterMenu = ({
+                      items,
+                      name,
+                      isMultiple,
+                      returnType,
+                      onChange,
+                      onClose,
+                    }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedValues, setSelectedValues] = useState([]);
@@ -46,18 +53,23 @@ const FilterMenu = ({ items, name, isMultiple, returnType }) => {
     return items.map((item, itemKey) => {
       const itemMapKey = `${item.name}-${itemKey}`;
       return (
-        <ListItem
-          key={itemMapKey}
-          button
-          component="li"
-          className={classes.listItem}
-        >
-          <FormControlLabel
-            control={<Checkbox value={item.value} onChange={event => handleChange(item.value, event)} />}
-            label={item.name}
-            className={classes.label}
-          />
-        </ListItem>
+          <ListItem
+              key={itemMapKey}
+              button
+              component="li"
+              className={classes.listItem}
+          >
+            <FormControlLabel
+                control={
+                  <Checkbox
+                      value={item.value}
+                      onChange={() => handleChange(item.value)}
+                  />
+                }
+                label={item.name}
+                className={classes.label}
+            />
+          </ListItem>
       );
     });
   }
@@ -73,8 +85,7 @@ const FilterMenu = ({ items, name, isMultiple, returnType }) => {
     });
   }
 
-  function handleChange(value, event) {
-    // console.log(value, event.target.checked)
+  function handleChange(value) {
     const id = value;
     const selectedIndex = selectedValues.indexOf(id);
     let newSelected = [];
@@ -87,13 +98,12 @@ const FilterMenu = ({ items, name, isMultiple, returnType }) => {
       newSelected = newSelected.concat(selectedValues.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
-        selectedValues.slice(0, selectedIndex),
-        selectedValues.slice(selectedIndex + 1),
+          selectedValues.slice(0, selectedIndex),
+          selectedValues.slice(selectedIndex + 1),
       );
     }
-
-    console.log(newSelected)
-    // setSelectedValues(newSelected);
+    onChange(newSelected);
+    setSelectedValues(newSelected);
   }
 
   function handleOpen(event) {
@@ -102,24 +112,25 @@ const FilterMenu = ({ items, name, isMultiple, returnType }) => {
 
   function handleClose() {
     setAnchorEl(null);
+    onClose(selectedValues);
   }
 
   return (
-    <>
-      <Button className={classes.button} onClick={handleOpen}>
-        {name}
-        <KeyboardArrowDownIcon />
-      </Button>
-      <Menu
-        id={createId}
-        anchorEl={anchorEl}
-        open={isMenuOpen}
-        onClose={handleClose}
-        className={classes.menu}
-      >
-        {renderOptions()}
-      </Menu>
-    </>
+      <>
+        <Button className={classes.button} onClick={handleOpen}>
+          {name}
+          <KeyboardArrowDownIcon />
+        </Button>
+        <Menu
+            id={createId}
+            anchorEl={anchorEl}
+            open={isMenuOpen}
+            onClose={handleClose}
+            className={classes.menu}
+        >
+          {renderOptions()}
+        </Menu>
+      </>
   );
 };
 
@@ -133,6 +144,8 @@ FilterMenu.propTypes = {
   name: PropTypes.string,
   isMultiple: PropTypes.bool,
   returnType: PropTypes.string,
+  onChange: PropTypes.func,
+  onClose: PropTypes.func,
 };
 
 export default FilterMenu;
